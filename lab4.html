@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <title>iPhones Store</title>
+        
+    </head>
+    <body>
+        <script>
+            window.alert('Welcome to our iPhone store!')
+            var name, item, num;
+            
+            name = window.prompt('Please enter your name');
+            item = window.prompt('Which iPhone model would you like to order?');
+            num = window.prompt('How many '+ item + 's would you like to get?');
+
+            while(num < 1 || num > 99){
+                num = window.prompt("Sorry, you can only order between 1 and 99 items. Please enter a valid quantity:");
+            }
+
+            now = new Date();
+            hour = now.getHours();
+            if(hour<12){
+                document.write('<h2>Good Morning ');
+            }
+            else if(hour <18){
+                document.write('<h2>Good Afternoon ');
+            }
+            else{
+                document.write('<h2>Good Evening ');
+            }
+
+            document.write( name + '! Thanks for your order.</h2>');
+            document.write(" You've ordered "+ num + ' ' + item+'. <br>');
+
+            var arrival = new Date();
+            arrival.setDate(now.getDate()+7);
+            document.write("Your order should be delivered by " + arrival.toDateString() );
+            
+            
+        </script>
+    </body>
+</html>
