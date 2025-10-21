@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+    <head>
+        <Title>Registration</Title>
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" 
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+        <script>
+            function submit() {
+                let firstName = document.getElementById("firstName").value;
+                let lastName = document.getElementById("lastName").value;
+                let email = document.getElementById("Email").value;
+                let password = document.getElementById("password").value;
+                let Dob = document.getElementById("DOB").value;
+                
+                if (firstName === "" || lastName === "" || email === "" || 
+                    password === "" || Dob === "") {
+                    var registrationStatus = "<p style='color:red;'> Registration failed: All fields are required</p>";
+                }
+
+                else if (!password.includes('!') && !password.includes('?')) {
+                    registrationStatus = "<p style='color:red;'> Registration failed: Password must contain either '!' or '?'</p>";
+                }
+                
+                else{
+                    var displayedPass = "";
+                    for(let i=0; i<password.length; i++){
+                        displayedPass += "*";
+                    }
+
+                    registrationStatus = "<h3><p style='color:green;'> Registration Successful!</p></h3>" 
+                        + "<p>Name: " + firstName + " " + lastName + "<br>"
+                        + "Email: " + email + "<br>"
+                        + "Password: " + displayedPass + "<br>"
+                        + "Date of birth: " + Dob + "</p>";
+                }
+
+                document.getElementById("status").innerHTML = registrationStatus;
+
+            }
+        </script>
+    </head>
+
+    <body>
+        <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class=" bg-light rounded-3 text-center p-4 shadow">
+            <div class="container py-4">
+                <h1>Welcome to the Store</h1><br>
+                <p>
+                    First name: <input id="firstName" type="text"> <br><br>
+                    Last name: <input id="lastName" type="text"> <br><br>
+                    Email Address: <input id="Email" type="text"> <br><br>
+                    Password: <input id="password" type="text"> <br><br>
+                    Date of birth: <input id="DOB" type="date"> <br><br>
+                </p>
+                <button onclick="submit()" class="btn btn-secondary">Register</button>
+            </div>
+
+             <p id="status"></p>
+        </div>
+
+        
+    </body>
+</html>
