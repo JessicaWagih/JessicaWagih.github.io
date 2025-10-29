@@ -1,0 +1,70 @@
+<html>
+    <head>
+        <title>API Test</title>
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" 
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+
+        <script>
+            async function getValue(){
+                const url ="https://brianobruno.github.io/cats.json";
+                const options = { method: 'GET' };
+                const response = await fetch(url, options);
+                const result = await response.text();
+                const myObj = JSON.parse(result);
+
+        
+
+                let table = "<table class='table'>";
+
+                table += 
+                "<thead>" 
+                + "<tr><th scope='col'> FactId </th>"
+                + "<th scope='col'> Fact </th></tr>" 
+                + "</thead>" 
+                + "<tbody>";
+
+                for (let i = 0; i < myObj.facts.length; i++) {
+                    table +=
+                    "<tr>"
+                    + "<th scope='row'>" + myObj.facts[i].factId + "</th>"
+                    + "<td>" + myObj.facts[i].text + "</td>"
+                    + "</tr>";
+                }
+
+                table += "</tbody>";
+                table += "</table>";
+                
+                
+
+                document.body.innerHTML += table;
+                document.getElementById("catPic").src = myObj.catPhoto;
+
+            }
+        </script>
+
+    </head>
+
+
+    <body>
+        <img id="catPic" src="Cat.webp" align="right" width="50%"> 
+
+        <div class="container text-center mt-5">
+                <div class="col-3 justify-content-center ">
+                    <h3>Wanna Know some Interesting Facts about Cats!</h3>
+        </div>
+
+        <div class="col-3 d-flex justify-content-center mt-3">
+                <button onclick="getValue()" class="btn btn-success"> Yes </button>
+        </div>
+
+    </body>
+</html>
