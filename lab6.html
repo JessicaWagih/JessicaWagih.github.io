@@ -21,7 +21,9 @@
                 const result = await response.text();
                 const myObj = JSON.parse(result);
 
-        
+                myObj.facts.sort(function(a, b) {
+                    return a.factId - b.factId;
+                });
 
                 let table = "<table class='table'>";
 
