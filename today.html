@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+    <head>
+        <Title>Today's Sun Overview</Title>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+        <script>
+            function convertTime(utcTime, tzid, format) {
+
+                //timezone values
+                const timeZoneOffsets = {                              
+                    "NZST": 12, "AEST": 10, "JST": 9, "KST": 9, 
+                    "CST": 8, "HKT": 8, "SGT": 8, "AWST": 8, "WIB": 7,
+                    "GST": 4, "MSK": 3, "EAT": 3, "EET": 2, "SAST": 2,
+                    "CET": 1, "WAT": 1, "GMT": 0, "UTC": 0, 
+                    "BRT": -3, "ART": -3, "AT": -4, "ET": -5, "CT": -6, 
+                    "MT": -7, "MST": -7, "PT": -8, "AKT": -9
+                };
+
+                let offset = timeZoneOffsets[tzid];
+
+                if(format == 1){  //standard format AM/PM
+
+                    let parts = utcTime.split(" "); //split the time and the period
+                    let time = parts[0].split(":");
+                    let period = parts[1];
+
+                    let hour = parseInt(time[0]); //integer
+                    let minute = time[1];
+                    let secs = time[2];
+
+                    hour += offset; //add the differnece to the central time
+
+                    if (hour > 12) {
+                        hour -= 12;
+                        if(period === "AM"){
+                            period = "PM"
+                        }
+                        else{
+                            period = "AM"
+                        }
+                    }
+
+                    if (hour <= 0) {
+                        hour += 12;
+                        if(period === "AM"){
+                            period = "PM"
+                        }
+                        else{
+                            period = "AM"
+                        }
+                    }
+
+                    return hour + ":" + minute + ":" + secs +  " " + period + " (" + tzid + ")";
+                }
+
+                else{ //24 hour format
+
+                    //bec it shows the date first
+                    let hour = parseInt(utcTime.substring(11,13));
+                    let minute = utcTime.substring(14,16);
+                    let secs = utcTime.substring(17,19);
+
+                    hour += offset; 
+
+                    if(hour>=24){
+                        hour -=24;
+                    }
+                    if(hour < 0) {
+                        hour += 24;
+                    }
+                    
+                    return utcTime.substring(0,10) + " " + hour + ":" + minute + ":" + secs + " (" + tzid + ")";
+                }
+            }
+
+            //calculate the golden hour
+            function goldenHour(ss,format){
+                if(format == 1){
+                    let parts = ss.split(" "); 
+                    let time = parts[0].split(":");
+                    let period = parts[1];
+
+                    let hour = parseInt(time[0]); 
+                    let minute = time[1];
+                    let secs = time[2];
+
+                    hour -=1;
+
+                    return hour + ":" + minute + ":" + secs +  " " + period;
+                }
+                else{
+                    let hour = parseInt(ss.substring(11,13));
+                    hour -=1
+                    return hour + ss.substring(13,19)
+                }
+            }
+
+            function dayStatus(dayLength, format) {
+                
+                let parts = dayLength.split(":");
+                hour = parseInt(parts[0]);
+
+                if (hour >= 12) {
+                    return "Long daylight duration";
+                }
+                else if (hour >= 10 && hour < 12) {
+                    return "Moderate daylight duration";
+                }
+                else {
+                    return "Short daylight duration";
+                }
+            }
+
+            async function getData() {
+                let lat = document.getElementById("lat").value;
+                let lng = document.getElementById("lng").value;
+                let tzid = document.getElementById("tzid").value;
+                let format = document.getElementById("format").value;
+
+                //empty input
+                if (lat == "" || lng == "") { 
+                    document.getElementById("error").innerHTML 
+                    = "<p style='color:red;'>Please enter both latitude and longitude</p>";
+                    return;
+                }
+
+
+                // -90<lat<90, -180<lng<180
+                if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+
+                    let url = `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lng}&formatted=${format}&date=today`;
+                    const options = { method: 'GET' };
+                    const response = await fetch(url, options);
+                    const result = await response.text();
+                    const myObj = JSON.parse(result);
+
+                    console.log(myObj);
+
+                    //get the values from API
+                    sr = myObj.results.sunrise;
+                    ss = myObj.results.sunset;
+                    noon = myObj.results.solar_noon;
+                    dayLength = myObj.results.day_length;
+
+                    //convert timne based on the time zone
+                    sr = convertTime(sr,tzid,format);
+                    ss = convertTime(ss,tzid,format);
+                    noon = convertTime(noon,tzid,format);
+                    
+                    if(format == 0){ //if format==0, daylength is returned in seconds 
+                        let seconds = parseInt(dayLength); 
+                        let hours = Math.floor(seconds / 3600); 
+                        let minutes = Math.floor((seconds % 3600) / 60); //remainder/60 
+                        let secs = seconds % 60; //remainder 
+                        dayLength = hours + ":" + minutes + ":" + secs; 
+                    }
+
+                    let gh = goldenHour(ss,format);
+                    
+                    //display the result
+                    document.getElementById("result").innerHTML =
+                        "<h3>🌞 Today's Sun Overview</h3>" 
+                        +'<p class="text-secondary mb-3">Location: Lat ' + lat +', Lng ' + lng +'</p>'
+                        + "<hr>"
+                        +"<p><strong>Sunrise: </strong>" + sr + "</p>"
+                        +"<p><strong>Sunset: </strong>" + ss +"</p>"
+                        +"<p><strong>Solar Noon: </strong>"+ noon + "</p>"
+                        +"<p><strong>Day Length: </strong>" + dayLength + "</p>"
+                        + "<hr>"
+                        +"<p>" + dayStatus(dayLength,format) + "</p>"
+                        +"<p><strong>Golden Hour: </strong>" + gh + "</p>";
+
+
+                    document.getElementById("input").classList.add("d-none");   //hide the input
+                    document.getElementById("resultContainer").classList.remove("d-none"); //show the result container
+                }
+
+                else{ //invalid lat/lng
+                    document.getElementById("error").innerHTML =
+                     "<p style='color:red;'> Please enter a valid latitude and longitude</p>";
+                    return;
+                }
+
+            }
+
+            function back(){
+                document.getElementById("input").classList.remove("d-none"); //display back the input
+                document.getElementById("resultContainer").classList.add("d-none"); //hide the result
+
+                document.getElementById("error").innerHTML = ""; //reset the error message
+                document.getElementById("result").innerHTML = ""; //reset the result
+            }
+
+        </script>
+    </head>
+    
+    <body style="background-image: url('bg.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center; background-attachment: fixed;">
+
+        <!--navbar-->
+        <ul class="nav nav-tabs" style="background-color: rgba(255, 255, 255, 0.741);">
+        <li class="nav-item">
+            <a class="nav-link" href="SunTrack.html">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="today.html">Today's Sun</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="date.html">Pick a Date</a>
+        </li>
+        </ul>
+
+        
+    <div id="input">
+        <div class="d-flex flex-column justify-content-center align-items-center vh-100">
+
+            <h5 style="text-align:center; max-width:600px; margin-bottom: 20px;">
+            Enter your location below by specifying the <strong>latitude</strong> and <strong>longitude</strong>.
+            The time zone option lets you choose how the times are displayed.
+            </h5>
+            
+            <!--input container-->
+            <div class="rounded-3 text-center p-4 shadow">
+                <div class="container py-4">
+                    
+                    <p>
+                        Latitude: <input id="lat" type="number" placeholder="e.g., 40.7128"> 
+                        <br><br>
+                        Longitude: <input id="lng" type="number" placeholder="e.g., -74.0060"> 
+                        <br><br>
+
+                        Time Zone: 
+                        <select id="tzid">
+                            <option value="NZST">Auckland (NZST) - GMT+12</option>
+                            <option value="AEST">Sydney (AEST) - GMT+10</option>
+                            <option value="JST">Tokyo (JST) - GMT+9</option>
+                            <option value="KST">Seoul (KST) - GMT+9</option>
+                            <option value="CST">Shanghai (CST) - GMT+8</option>
+                            <option value="HKT">Hong Kong (HKT) - GMT+8</option>
+                            <option value="SGT">Singapore (SGT) - GMT+8</option>
+                            <option value="AWST">Perth (AWST) - GMT+8</option>
+                            <option value="WIB">Jakarta (WIB) - GMT+7</option>
+                            <option value="GST">Dubai (GST) - GMT+4</option>
+                            <option value="MSK">Moscow (MSK) - GMT+3</option>
+                            <option value="EAT">Nairobi (EAT) - GMT+3</option>
+                            <option value="EET">Cairo (EET) - GMT+2</option>
+                            <option value="SAST">Johannesburg (SAST) - GMT+2</option>
+                            <option value="CET">Berlin (CET) - GMT+1</option>
+                            <option value="CET">Paris (CET) - GMT+1</option>
+                            <option value="CET">Rome (CET) - GMT+1</option>
+                            <option value="CET">Madrid (CET) - GMT+1</option>
+                            <option value="WAT">Lagos (WAT) - GMT+1</option>
+                            <option value="GMT">London (GMT) - GMT+0</option>
+                            <option value="UTC" selected>UTC - GMT+0 (default)</option>
+                            <option value="BRT">Sao Paulo (BRT) - GMT-3</option>
+                            <option value="ART">Buenos Aires (ART) - GMT-3</option>
+                            <option value="AT">Atlantic Time (AT) - GMT-4</option>
+                            <option value="ET">Eastern Time (ET) - GMT-5</option>
+                            <option value="CT">Central Time (CT) - GMT-6</option>
+                            <option value="MT">Mountain Time (MT) - GMT-7</option>
+                            <option value="MST">Arizona Time (MST) - GMT-7</option>
+                            <option value="PT">Pacific Time (PT) - GMT-8</option>
+                            <option value="AKT">Alaska Time (AKT) - GMT-9</option>
+                        </select>
+
+                        <br><br>
+                        Format:
+                        <select id="format">
+                            <option value="1" selected>AM/PM (default)</option>
+                            <option value="0">ISO 8601</option>
+                        </select>
+                        
+                        <br><br>
+                        <button onclick="getData()" class="btn btn-success">Explore</button>
+
+                        <br>
+                        <p id="error"></p> <!--Error message-->
+                        
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <!--result container-->
+    <div id="resultContainer" class="d-none vh-100 d-flex justify-content-center align-items-center"> <!--hide it by default-->
+            <div class="rounded-3 text-center p-4 shadow">
+                <div class="container py-4">
+                    <div id="result" class="text-center mt-4"></div>
+                    <button onclick="back()" class="btn btn-success">Go Back</button>
+                </div>
+            </div>
+    </div>
+    
+    
+
+    </body>
+</html>
