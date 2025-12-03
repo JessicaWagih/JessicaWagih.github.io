@@ -33,27 +33,38 @@
                     let hour = parseInt(time[0]); //integer
                     let minute = time[1];
                     let secs = time[2];
-
-                    hour += offset; //add the differnece to the central time
-
-                    if (hour > 12) {
-                        hour -= 12;
-                        if(period === "AM"){
-                            period = "PM"
-                        }
-                        else{
-                            period = "AM"
-                        }
+                    
+                    //convert to 24 hour format
+                    if (period === "PM" && hour !== 12){
+                        hour += 12;
+                    } 
+                    if (period === "AM" && hour == 12){ 
+                        hour = 0;
                     }
 
-                    if (hour <= 0) {
-                        hour += 12;
-                        if(period === "AM"){
-                            period = "PM"
-                        }
-                        else{
-                            period = "AM"
-                        }
+                    hour += offset; 
+
+                    // fix the overlaps
+                    if (hour < 0){
+                        hour += 24;
+                    } 
+                    if (hour >= 24){ 
+                        hour -= 24;
+                    }
+
+                    //return back to 12 hour format
+                    if(hour>=12){
+                        period = "PM";
+                    }
+                    else{
+                        period ="AM"
+                    }
+
+                    if(hour == 0){
+                        hour = 12;
+                    }
+                    else if(hour>12){
+                        hour -=12;
                     }
 
                     return hour + ":" + minute + ":" + secs +  " " + period + " (" + tzid + ")";
