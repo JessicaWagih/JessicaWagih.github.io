@@ -60,7 +60,8 @@
 
                 else{ //24 hour format
 
-                    //bec it shows the date first
+                    //The API returns the date first the date first
+                    let date = utcTime.substring(0,10);
                     let hour = parseInt(utcTime.substring(11,13));
                     let minute = utcTime.substring(14,16);
                     let secs = utcTime.substring(17,19);
@@ -74,7 +75,7 @@
                         hour += 24;
                     }
                     
-                    return utcTime.substring(0,10) + " " + hour + ":" + minute + ":" + secs + " (" + tzid + ")";
+                    return  date + " " + hour + ":" + minute + ":" + secs + " (" + tzid + ")";
                 }
             }
 

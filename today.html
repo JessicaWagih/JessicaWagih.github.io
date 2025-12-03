@@ -61,7 +61,8 @@
 
                 else{ //24 hour format
 
-                    //bec it shows the date first
+                    //The API returns the date first the date first
+                    let date = utcTime.substring(0,10);
                     let hour = parseInt(utcTime.substring(11,13));
                     let minute = utcTime.substring(14,16);
                     let secs = utcTime.substring(17,19);
@@ -75,7 +76,7 @@
                         hour += 24;
                     }
                     
-                    return utcTime.substring(0,10) + " " + hour + ":" + minute + ":" + secs + " (" + tzid + ")";
+                    return  date + " " + hour + ":" + minute + ":" + secs + " (" + tzid + ")";
                 }
             }
 
@@ -134,7 +135,7 @@
                 // -90<lat<90, -180<lng<180
                 if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
 
-                    let url = `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lng}&formatted=${format}&date=today`;
+                    let url = `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lng}&formatted=${format}`;
                     const options = { method: 'GET' };
                     const response = await fetch(url, options);
                     const result = await response.text();
